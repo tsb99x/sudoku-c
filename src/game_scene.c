@@ -122,7 +122,7 @@ static void draw_timer(
         unsigned int seconds_from_start;
         unsigned int timer_seconds;
         unsigned int timer_minutes;
-        char timer_str[8];
+        char timer_str[9];
 
         seconds_from_start = SDL_GetTicks() / 1000;
         timer_minutes = seconds_from_start / 60;
