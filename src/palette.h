@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 extern SDL_Color *background_color;
 extern SDL_Color *digit_color;

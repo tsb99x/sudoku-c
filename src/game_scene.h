@@ -6,7 +6,7 @@
 #include "grid.h"
 #include "layout.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 typedef struct gc_data {
         context_t *ctx;

@@ -75,7 +75,7 @@ void game_scene_destroy(gc_data_t *data)
         }
 }
 
-static void on_window_event(SDL_WindowEvent *e,
+static void on_window_event(SDL_WindowEvent *event,
                             context_t *ctx,
                             SDL_Texture **digits,
                             button_t *buttons,
@@ -84,16 +84,14 @@ static void on_window_event(SDL_WindowEvent *e,
         SDL_Rect screen;
         int timer_height;
 
-        if (e->event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-                screen.x = screen.y = 0;
-                screen.w = e->data1;
-                screen.h = e->data2;
-                layout_calc(layout, &screen);
-                timer_height = layout_get_timer_height(layout);
-                context_resize_font(ctx, timer_height);
-                digits_recache(digits, ctx);
-                buttons_position(buttons, layout);
-        }
+        screen.x = screen.y = 0;
+        screen.w = event->data1;
+        screen.h = event->data2;
+        layout_calc(layout, &screen);
+        timer_height = layout_get_timer_height(layout);
+        context_resize_font(ctx, timer_height);
+        digits_recache(digits, ctx);
+        buttons_position(buttons, layout);
 }
 
 void game_scene_update(void *data,
@@ -103,19 +101,19 @@ void game_scene_update(void *data,
 
         SDL_Point mouse_pos;
 
-        if (event->type == SDL_WINDOWEVENT) {
+        if (event->type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
                 on_window_event(&event->window,
                                 gc_data->ctx,
                                 gc_data->digits,
                                 gc_data->buttons,
                                 gc_data->layout);
         }
-        if (event->type == SDL_MOUSEMOTION) {
+        if (event->type == SDL_EVENT_MOUSE_MOTION) {
                 mouse_pos.x = event->motion.x;
                 mouse_pos.y = event->motion.y;
                 buttons_update(gc_data->buttons, &mouse_pos);
         }
-        if (event->type == SDL_MOUSEBUTTONUP) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 buttons_click(gc_data->buttons, event->button.button);
         }
 }
@@ -127,12 +125,16 @@ static void draw_timer(context_t *ctx,
         unsigned int seconds_from_start;
         unsigned int timer_seconds;
         unsigned int timer_minutes;
-        char timer_str[9];
+        char timer_str[12];
 
         seconds_from_start = SDL_GetTicks() / 1000;
         timer_minutes = seconds_from_start / 60;
         timer_seconds = seconds_from_start % 60;
-        sprintf(timer_str, "%02u:%02u", timer_minutes, timer_seconds);
+        snprintf(timer_str,
+                 sizeof(timer_str),
+                 "%02u:%02u",
+                 timer_minutes,
+                 timer_seconds);
         pos = layout_get_timer_pos(layout);
         context_draw_string(ctx, timer_str, timer_color, &pos);
 }

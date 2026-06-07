@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 typedef struct context context_t;
 
@@ -21,7 +21,7 @@ void context_set_draw_color(context_t *self,
 void context_clear_screen(context_t *self);
 
 void context_draw_rect(context_t *self,
-                       SDL_Rect *rect);
+                       SDL_FRect *rect);
 
 void context_draw_texture(context_t *self,
                           SDL_Texture *texture,

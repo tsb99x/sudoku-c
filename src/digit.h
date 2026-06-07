@@ -2,7 +2,7 @@
 
 #include "context.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 SDL_Texture **digits_create(context_t *ctx);
 

@@ -4,14 +4,14 @@ add_library(context
         context.c
         context.h)
 target_link_libraries(context
-        SDL2
-        SDL2_ttf)
+        SDL3::SDL3
+        SDL3_ttf::SDL3_ttf)
 
 add_library(layout
         layout.c
         layout.h)
 target_link_libraries(layout
-        SDL2)
+        SDL3::SDL3)
 
 add_library(grid
         grid.c
@@ -28,7 +28,7 @@ add_library(palette
         palette.c
         palette.h)
 target_link_libraries(palette
-        SDL2)
+        SDL3::SDL3)
 
 add_library(digit
         digit.c
@@ -46,15 +46,20 @@ target_link_libraries(game_scene
         digit
         grid
         layout
-        SDL2
+        SDL3::SDL3
         palette)
 
 # Application
 
+if (MSVC)
+        add_compile_definitions(SUDOKU_FONT="C:/Windows/Fonts/Arial.ttf")
+else()
+        add_compile_definitions(SUDOKU_FONT="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")
+endif()
+
 set(EXT_LIBS
-        SDL2
-        SDL2main
-        SDL2_ttf)
+        SDL3::SDL3
+        SDL3_ttf::SDL3_ttf)
 set(INT_LIBS
         context
         game_scene)
@@ -63,11 +68,3 @@ add_executable(${PROJECT_NAME} WIN32
 target_link_libraries(${PROJECT_NAME}
         ${EXT_LIBS}
         ${INT_LIBS})
-
-foreach(LIB SDL2 SDL2_ttf FreeType ZLib)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E echo
-                Copy $<TARGET_FILE:${LIB}> into $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:${LIB}> $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-endforeach()

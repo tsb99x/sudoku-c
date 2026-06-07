@@ -2,7 +2,7 @@
 
 #include "palette.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <stdlib.h>
 
@@ -101,7 +101,7 @@ void buttons_draw(button_t *self,
                   context_t *ctx,
                   SDL_Texture **digits)
 {
-        SDL_Rect rect;
+        SDL_FRect rect;
         SDL_Texture *tex;
         SDL_Point pos;
         int i;

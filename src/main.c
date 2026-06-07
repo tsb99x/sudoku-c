@@ -1,7 +1,7 @@
 #include "context.h"
 #include "game_scene.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <stdlib.h>
 #include <time.h>
@@ -19,7 +19,7 @@ int main(int argc,
 
         srand(time(NULL));
 
-        ctx = context_create(800, 800, 30, "C:/Windows/Fonts/Arial.ttf");
+        ctx = context_create(800, 800, 30, SUDOKU_FONT);
         if (!ctx) {
                 SDL_Log("Failed to create context\n");
                 return -1;
@@ -34,11 +34,11 @@ int main(int argc,
         quit = 0;
         while (!quit) {
                 while (SDL_PollEvent(&event)) {
-                        if (event.type == SDL_QUIT) {
+                        if (event.type == SDL_EVENT_QUIT) {
                                 quit = 1;
                         }
-                        if (event.type == SDL_KEYDOWN) {
-                                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        if (event.type == SDL_EVENT_KEY_DOWN) {
+                                if (event.key.key == SDLK_ESCAPE) {
                                         quit = 1;
                                 }
                         }

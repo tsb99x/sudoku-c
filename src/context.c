@@ -2,6 +2,8 @@
 
 #include "palette.h"
 
+#include <SDL3_ttf/SDL_ttf.h>
+
 #include <stdlib.h>
 
 struct context {
@@ -18,7 +20,7 @@ context_t *context_create(int window_w,
                           int default_frame_rate,
                           const char *font_path)
 {
-        SDL_DisplayMode mode;
+        const SDL_DisplayMode *mode;
         int refresh_rate;
         context_t *self;
 
@@ -27,19 +29,20 @@ context_t *context_create(int window_w,
                 return NULL;
         }
 
-        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        if (!SDL_Init(SDL_INIT_VIDEO)) {
                 SDL_Log("Failed to init SDL: %s\n", SDL_GetError());
                 context_destroy(self);
                 return NULL;
         }
 
-        if (TTF_Init() != 0) {
-                SDL_Log("Failed to init TTF: %s\n", TTF_GetError());
+        if (!TTF_Init()) {
+                SDL_Log("Failed to init TTF: %s\n", SDL_GetError());
                 context_destroy(self);
                 return NULL;
         }
 
-        if (SDL_GetDisplayMode(0, 0, &mode) != 0) {
+        mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+        if (!mode) {
                 SDL_Log("Failed to get best display mode: %s\n",
                         SDL_GetError());
                 context_destroy(self);
@@ -47,24 +50,18 @@ context_t *context_create(int window_w,
         }
 
         refresh_rate =
-            (mode.refresh_rate == 0) ? default_frame_rate : mode.refresh_rate;
+            (mode->refresh_rate == 0) ? default_frame_rate : mode->refresh_rate;
         self->millis_per_frame = 1000 / refresh_rate;
 
-        self->window =
-            SDL_CreateWindow("Sudoku",
-                             SDL_WINDOWPOS_CENTERED,
-                             SDL_WINDOWPOS_CENTERED,
-                             window_w,
-                             window_h,
-                             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        self->window = SDL_CreateWindow(
+            "Sudoku", window_w, window_h, SDL_WINDOW_RESIZABLE);
         if (!self->window) {
                 SDL_Log("Failed to create window: %s\n", SDL_GetError());
                 context_destroy(self);
                 return NULL;
         }
 
-        self->renderer =
-            SDL_CreateRenderer(self->window, -1, SDL_RENDERER_SOFTWARE);
+        self->renderer = SDL_CreateRenderer(self->window, NULL);
         if (!self->renderer) {
                 SDL_Log("Failed to create renderer: %s\n", SDL_GetError());
                 context_destroy(self);
@@ -74,14 +71,14 @@ context_t *context_create(int window_w,
         self->font_path = font_path;
         self->timer = TTF_OpenFont(font_path, 48);
         if (!self->timer) {
-                SDL_Log("Failed to open timer font: %s\n", TTF_GetError());
+                SDL_Log("Failed to open timer font: %s\n", SDL_GetError());
                 context_destroy(self);
                 return NULL;
         }
 
         self->digit = TTF_OpenFont(font_path, 48 / 2.5);
         if (!self->timer) {
-                SDL_Log("Failed to open digit font: %s\n", TTF_GetError());
+                SDL_Log("Failed to open digit font: %s\n", SDL_GetError());
                 context_destroy(self);
                 return NULL;
         }
@@ -130,7 +127,7 @@ void context_clear_screen(context_t *self)
 }
 
 void context_draw_rect(context_t *self,
-                       SDL_Rect *rect)
+                       SDL_FRect *rect)
 {
         SDL_RenderFillRect(self->renderer, rect);
 }
@@ -139,12 +136,12 @@ void context_draw_texture(context_t *self,
                           SDL_Texture *texture,
                           SDL_Point *pos)
 {
-        SDL_Rect rect;
+        SDL_FRect rect;
 
-        SDL_QueryTexture(texture, NULL, NULL, &rect.w, &rect.h);
+        SDL_GetTextureSize(texture, &rect.w, &rect.h);
         rect.x = pos->x - rect.w / 2;
         rect.y = pos->y - rect.h / 2;
-        SDL_RenderCopy(self->renderer, texture, NULL, &rect);
+        SDL_RenderTexture(self->renderer, texture, NULL, &rect);
 }
 
 SDL_Texture *context_prepare_glyph(context_t *self,
@@ -156,7 +153,7 @@ SDL_Texture *context_prepare_glyph(context_t *self,
 
         surface = TTF_RenderGlyph_Blended(self->digit, glyph, *color);
         texture = SDL_CreateTextureFromSurface(self->renderer, surface);
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
         return texture;
 }
 
@@ -168,11 +165,11 @@ void context_draw_string(context_t *self,
         SDL_Surface *surface;
         SDL_Texture *texture;
 
-        surface = TTF_RenderUTF8_Blended(self->timer, str, *color);
+        surface = TTF_RenderText_Blended(self->timer, str, 0, *color);
         texture = SDL_CreateTextureFromSurface(self->renderer, surface);
         context_draw_texture(self, texture, pos);
         SDL_DestroyTexture(texture);
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
 }
 
 void context_present_screen(context_t *self)
