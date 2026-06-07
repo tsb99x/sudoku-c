@@ -6,12 +6,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-int main(
-        int argc,
-        char *argv[]
-) {
-        (void) argc;
-        (void) argv;
+int main(int argc,
+         char *argv[])
+{
+        (void)argc;
+        (void)argv;
 
         context_t *ctx;
         gc_data_t gc_data;
@@ -35,11 +34,14 @@ int main(
         quit = 0;
         while (!quit) {
                 while (SDL_PollEvent(&event)) {
-                        if (event.type == SDL_QUIT)
+                        if (event.type == SDL_QUIT) {
                                 quit = 1;
-                        if (event.type == SDL_KEYDOWN)
-                                if (event.key.keysym.sym == SDLK_ESCAPE)
+                        }
+                        if (event.type == SDL_KEYDOWN) {
+                                if (event.key.keysym.sym == SDLK_ESCAPE) {
                                         quit = 1;
+                                }
+                        }
                         game_scene_update(&gc_data, &event);
                 }
                 context_clear_screen(ctx);

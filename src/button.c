@@ -17,13 +17,12 @@ struct button {
         state_t state;
 };
 
-static void assign_state(
-        button_t *buttons,
-        grid_t *grid
-) {
+static void assign_state(button_t *buttons,
+                         grid_t *grid)
+{
         int x, y;
 
-        for (y = 0; y < ROWS; ++y)
+        for (y = 0; y < ROWS; ++y) {
                 for (x = 0; x < COLS; ++x) {
                         buttons->x = x;
                         buttons->y = y;
@@ -31,30 +30,29 @@ static void assign_state(
                         buttons->state = (buttons->val == 0) ? IDLE : PRESET;
                         ++buttons;
                 }
+        }
 }
 
-button_t *buttons_create(
-        grid_t *grid
-) {
+button_t *buttons_create(grid_t *grid)
+{
         button_t *buttons;
 
         buttons = malloc(CELLS_LEN * sizeof(button_t));
-        if (!buttons)
+        if (!buttons) {
                 return NULL;
+        }
         assign_state(buttons, grid);
         return buttons;
 }
 
-void buttons_destroy(
-        button_t *self
-) {
+void buttons_destroy(button_t *self)
+{
         free(self);
 }
 
-void buttons_update(
-        button_t *self,
-        SDL_Point *mouse_pos
-) {
+void buttons_update(button_t *self,
+                    SDL_Point *mouse_pos)
+{
         SDL_Rect rect;
         int i;
 
@@ -63,19 +61,19 @@ void buttons_update(
                         rect.x = self->x;
                         rect.y = self->y;
                         rect.w = rect.h = self->size;
-                        if (SDL_PointInRect(mouse_pos, &rect))
+                        if (SDL_PointInRect(mouse_pos, &rect)) {
                                 self->state = HOVERED;
-                        else
+                        } else {
                                 self->state = IDLE;
+                        }
                 }
                 ++self;
         }
 }
 
-void buttons_click(
-        button_t *self,
-        unsigned char mouse_bt
-) {
+void buttons_click(button_t *self,
+                   unsigned char mouse_bt)
+{
         int i;
 
         for (i = 0; i < ROWS * COLS; ++i) {
@@ -88,20 +86,21 @@ void buttons_click(
                                 self->val--;
                                 break;
                         }
-                        if (self->val > 9)
+                        if (self->val > 9) {
                                 self->val = 0;
-                        if (self->val < 0)
+                        }
+                        if (self->val < 0) {
                                 self->val = 9;
+                        }
                 }
                 ++self;
         }
 }
 
-void buttons_draw(
-        button_t *self,
-        context_t *ctx,
-        SDL_Texture **digits
-) {
+void buttons_draw(button_t *self,
+                  context_t *ctx,
+                  SDL_Texture **digits)
+{
         SDL_Rect rect;
         SDL_Texture *tex;
         SDL_Point pos;
@@ -135,14 +134,13 @@ void buttons_draw(
         }
 }
 
-void buttons_position(
-        button_t *self,
-        layout_t *layout
-) {
+void buttons_position(button_t *self,
+                      layout_t *layout)
+{
         int y, x;
         SDL_Rect rect;
 
-        for (y = 0; y < ROWS; ++y)
+        for (y = 0; y < ROWS; ++y) {
                 for (x = 0; x < COLS; ++x) {
                         rect = layout_get_button_rect(layout, x, y);
                         self->x = rect.x;
@@ -150,4 +148,5 @@ void buttons_position(
                         self->size = rect.w;
                         ++self;
                 }
+        }
 }

@@ -5,15 +5,14 @@
 #include <stdio.h>
 #include <string.h>
 
-int game_scene_create(
-        gc_data_t *data,
-        context_t *ctx
-) {
+int game_scene_create(gc_data_t *data,
+                      context_t *ctx)
+{
         percent_t canvas_padding = .03f;
-        percent_t timer_size     = .10f;
-        percent_t timer_pad      = .02f;
-        percent_t small_gap      = .01f;
-        percent_t large_gap      = .03f;
+        percent_t timer_size = .10f;
+        percent_t timer_pad = .02f;
+        percent_t small_gap = .01f;
+        percent_t large_gap = .03f;
 
         SDL_Rect screen;
         int timer_height;
@@ -43,8 +42,8 @@ int game_scene_create(
                 return 0;
         }
 
-        data->layout = layout_create(small_gap, large_gap, canvas_padding,
-                                timer_size, timer_pad);
+        data->layout = layout_create(
+            small_gap, large_gap, canvas_padding, timer_size, timer_pad);
         if (!data->layout) {
                 SDL_Log("Failed to create layout\n");
                 game_scene_destroy(data);
@@ -60,26 +59,28 @@ int game_scene_create(
         return 1;
 }
 
-void game_scene_destroy(
-        gc_data_t *data
-) {
-        if (data->buttons)
+void game_scene_destroy(gc_data_t *data)
+{
+        if (data->buttons) {
                 buttons_destroy(data->buttons);
-        if (data->digits)
+        }
+        if (data->digits) {
                 digits_destroy(data->digits);
-        if (data->grid)
+        }
+        if (data->grid) {
                 grid_destroy(data->grid);
-        if (data->layout)
+        }
+        if (data->layout) {
                 layout_destroy(data->layout);
+        }
 }
 
-static void on_window_event(
-        SDL_WindowEvent *e,
-        context_t *ctx,
-        SDL_Texture **digits,
-        button_t *buttons,
-        layout_t *layout
-) {
+static void on_window_event(SDL_WindowEvent *e,
+                            context_t *ctx,
+                            SDL_Texture **digits,
+                            button_t *buttons,
+                            layout_t *layout)
+{
         SDL_Rect screen;
         int timer_height;
 
@@ -95,29 +96,33 @@ static void on_window_event(
         }
 }
 
-void game_scene_update(
-        void *data,
-        SDL_Event *event
-) {
+void game_scene_update(void *data,
+                       SDL_Event *event)
+{
         gc_data_t *gc_data = data;
 
         SDL_Point mouse_pos;
 
-        if (event->type == SDL_WINDOWEVENT)
-                on_window_event(&event->window, gc_data->ctx, gc_data->digits, gc_data->buttons, gc_data->layout);
+        if (event->type == SDL_WINDOWEVENT) {
+                on_window_event(&event->window,
+                                gc_data->ctx,
+                                gc_data->digits,
+                                gc_data->buttons,
+                                gc_data->layout);
+        }
         if (event->type == SDL_MOUSEMOTION) {
                 mouse_pos.x = event->motion.x;
                 mouse_pos.y = event->motion.y;
                 buttons_update(gc_data->buttons, &mouse_pos);
         }
-        if (event->type == SDL_MOUSEBUTTONUP)
+        if (event->type == SDL_MOUSEBUTTONUP) {
                 buttons_click(gc_data->buttons, event->button.button);
+        }
 }
 
-static void draw_timer(
-        context_t *ctx,
-        layout_t *layout
-) {
+static void draw_timer(context_t *ctx,
+                       layout_t *layout)
+{
         SDL_Point pos;
         unsigned int seconds_from_start;
         unsigned int timer_seconds;
@@ -132,9 +137,8 @@ static void draw_timer(
         context_draw_string(ctx, timer_str, timer_color, &pos);
 }
 
-void game_scene_render(
-        void *data
-) {
+void game_scene_render(void *data)
+{
         gc_data_t *gc_data = data;
 
         draw_timer(gc_data->ctx, gc_data->layout);
